@@ -20,8 +20,6 @@ Esta contiene la cantidad de columnas y mapea los offsets.
 
 1. `record_decoder`
 
-record_decoder
-
 **Input**: `record_bytes: bytes` (bytes del registro: cabecera + datos)
 
 **Output**: `values: list` (lista con los datos recuperados en sus tipos originales)
