@@ -57,10 +57,14 @@ class SlottedPage:
             new_offset = self.free_space_high - record_len
             self.data[new_offset : self.free_space_high] = record
             self.free_space_high = new_offset
-            
             self.set_slot(slot_id, new_offset, record_len)
+
+        l = self.free_space_low
+        h = self.free_space_high
+        self.data[l:h] = b"\x00" * (h-l) # limpiamos el espacio del centro
+
         self.save_header()
-        
+
     def insert(self, record_data: bytes):
         record_len = len(record_data)
 
@@ -109,7 +113,7 @@ class SlottedPage:
 
     def delete_record(self, slot_id:int):
         if slot_id<0 or slot_id>=self.slot_count:
-                    return False
+            return False
         
         offset, length = self.get_slot(slot_id)
         if length == 0: # eliminado
