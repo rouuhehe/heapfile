@@ -18,14 +18,7 @@ Se empaquetan los datos y se genera la cabecera del registro.
 **La cabecera:** 
 Esta contiene la cantidad de columnas y mapea los offsets.
 
-$$
-len(arrOffsets) + \#arrOffsets
-$$
-
-- Tamaño de $len(arrOffsets)=$ 2 bytes
-- Tamaño de $\#arrOffsets=$  (2 bytes $\times$  $\#Campos$)
-
-2. `record_decoder`
+1. `record_decoder`
 
 record_decoder
 

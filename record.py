@@ -1,4 +1,5 @@
 import struct
+
 # Esta clase se encarga de convertir los registros a binario
 # De momento, soporta los siguientes tipos en un objeto: int, float y string.
 
