@@ -107,30 +107,59 @@ class HeapFile:
         #    SlottedPage.insert.
         # 3. Si ninguna alcanza, pedir pagina nueva con _new_page.
         # Devuelve el RID (page_id, slot_id) del registro insertado.
-        pass
+        if len(record_data)>MAX_RECORD_SIZE:
+            raise ValueError(f"Registro demasiado grande: {len(record_data)} bytes, maximo {MAX_RECORD_SIZE}")
 
+        needed=len(record_data)+SLOT_SIZE
+        for page_id in range(1,self.page_count+1):
+            if self._get_free_space(page_id)<needed:
+                continue
+            page=self.load(page_id)
+            slot_id=page.insert(record_data)
+            self._sync_page(page)
+            return RID(page_id,slot_id)
+        page=self._new_page()
+        slot_id=page.insert(record_data)
+        self._sync_page(page)
+        return RID(page.page_id,slot_id)
     def get(self, rid: RID):
         # Devuelve los bytes del registro en rid, o None si no existe
         # o esta borrado. Delegado en SlottedPage.get_record.
-        pass
+        page_id, slot_id = rid
+        if page_id < 1 or page_id > self.page_count:
+            return None
+        page=self.load(page_id)
+        return page.get_record(slot_id)
 
     def remove(self, rid: RID) -> bool:
         # Borra el registro en rid (delegado en SlottedPage.delete_record)
         # y sincroniza la pagina/directorio si el borrado fue efectivo.
-        pass
+        page_id, slot_id=rid
+        if page_id<1 or page_id>self.page_cpunt:
+            return False
+        page=self.load(page_id)
+        ok=page.delete_record(slot_id)
+        if ok:
+            self._sync_page(page)
+        return ok
 
     def compact(self, page_id: int):
         # Fuerza defragment() sobre una pagina puntual y sincroniza.
         # Util para recuperar espacio muerto que quedo tras varios
         # remove() sin un add() posterior que lo reclame.
-        pass
+        if page_id<1 or page_id>self.page_count:
+            return
+        page=self.load(page_id)
+        page.defragment()
+        self._sync_page(page)
 
     def vacuum(self):
         # compact() sobre todas las paginas de datos del archivo.
-        pass
+        for page_id in range(1,self.page_count+1):
+            self.compact(page_id)
 
     def close(self):
-        pass
+        self.file.close()
 
     def __enter__(self):
         return self
