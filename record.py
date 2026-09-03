@@ -58,7 +58,8 @@ class RecordPacker:
                 values.append(value_bytes.decode("utf-8"))
 
         return values
-
-r = RecordPacker(['int', 'float', 'int','int','int','int','int','int','int','int','int','int','int','int','int','int'])
-a = r.record_encoder([5,3.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1])
-print(r.record_dencoder(a))
+ 
+if __name__ == "__main__":
+    r = RecordPacker(['int', 'float', 'int','int','int','int','int','int','int','int','int','int','int','int','int','int'])
+    a = r.record_encoder([5,3.5,1,1,1,1,1,1,1,1,1,1,1,1,1,1])
+    print(r.record_decoder(a))
