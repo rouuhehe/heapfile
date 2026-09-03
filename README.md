@@ -18,7 +18,7 @@ Se empaquetan los datos y se genera la cabecera del registro.
 **La cabecera:** 
 Esta contiene la cantidad de columnas y mapea los offsets.
 
-1. `record_decoder`
+2. `record_decoder`
 
 **Input**: `record_bytes: bytes` (bytes del registro: cabecera + datos)
 
@@ -38,7 +38,7 @@ En este archivo se implementa la pagina de tamaño fijo (`PAGE_SIZE = 4096` byte
 
 Busca un slot vacio para reusar o reserva uno nuevo, compacta la pagina con `defragment` si hace falta, y escribe el registro en el espacio libre del centro de la pagina.
 
-1. `get_record`
+2. `get_record`
 
 **Input**: `slot_id: int` (indice del slot a leer)
 
@@ -46,7 +46,7 @@ Busca un slot vacio para reusar o reserva uno nuevo, compacta la pagina con `def
 
 Busca el `(offset, length)` del slot y devuelve el bloque de bytes correspondiente.
 
-1. `delete_record`
+3. `delete_record`
 
 **Input**: `slot_id: int` (indice del slot a borrar)
 
@@ -54,7 +54,7 @@ Busca el `(offset, length)` del slot y devuelve el bloque de bytes correspondien
 
 Marca el slot como vacio (`offset=0, length=0`). El espacio que ocupaba el registro no se recupera hasta el proximo `defragment`.
 
-1. `defragment`
+4. `defragment`
 
 **Input**: ninguno
 
@@ -74,7 +74,7 @@ En este archivo se maneja el heap file: un archivo donde se guardan e identifica
 
 Busca en el directorio una pagina con espacio suficiente e inserta ahi el registro; si ninguna alcanza, crea una pagina nueva. Levanta `ValueError` si el registro no cabe en ninguna pagina vacia.
 
-1. `get`
+2. `get`
 
 **Input**: `rid: RID`
 
@@ -82,7 +82,7 @@ Busca en el directorio una pagina con espacio suficiente e inserta ahi el regist
 
 Lee la pagina de `rid.page_id` y delega en `SlottedPage.get_record`.
 
-1. `remove`
+3. `remove`
 
 **Input**: `rid: RID`
 
@@ -90,7 +90,7 @@ Lee la pagina de `rid.page_id` y delega en `SlottedPage.get_record`.
 
 Delega en `SlottedPage.delete_record` sobre la pagina de `rid.page_id` y sincroniza el directorio.
 
-1. `compact`
+4. `compact`
 
 **Input**: `page_id: int`
 
@@ -98,7 +98,7 @@ Delega en `SlottedPage.delete_record` sobre la pagina de `rid.page_id` y sincron
 
 Fuerza `defragment` sobre una pagina puntual, para recuperar espacio muerto que quedo tras varios `remove` sin un `add` posterior que lo reclame.
 
-1. `vacuum`
+5. `vacuum`
 
 **Input**: ninguno
 
