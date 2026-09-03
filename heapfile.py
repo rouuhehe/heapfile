@@ -45,7 +45,7 @@ class HeapFile:
     def _save_directory(self):
         # Empaqueta self.page_count en self._dir_data y escribe esos 
         # 4096 bytes al inicio del archivo.
-        struct.pack_into(DIR_HEADER_FORMAT, self._dir_data,0, self,self.page_count)
+        struct.pack_into(DIR_HEADER_FORMAT, self._dir_data,0,self.page_count)
         self.file.seek(0)
         self.file.write(self._dir_data)
         self.file.flush()
@@ -66,7 +66,7 @@ class HeapFile:
     def _page_offset(self, page_id: int) -> int:
         return page_id * PAGE_SIZE  # page_id 0 = directorio, 1..N = datos
 
-    def load(self, page_id: int) -> SlottedPage:
+    def _load(self, page_id: int) -> SlottedPage:
         # Lee PAGE_SIZE bytes del archivo en el offset de page_id y
         # arma un SlottedPage a partir de ese bytearray.
         self.file.seek(self._page_offset(page_id))
@@ -114,7 +114,7 @@ class HeapFile:
         for page_id in range(1,self.page_count+1):
             if self._get_free_space(page_id)<needed:
                 continue
-            page=self.load(page_id)
+            page=self._load(page_id)
             slot_id=page.insert(record_data)
             self._sync_page(page)
             return RID(page_id,slot_id)
@@ -128,16 +128,16 @@ class HeapFile:
         page_id, slot_id = rid
         if page_id < 1 or page_id > self.page_count:
             return None
-        page=self.load(page_id)
+        page=self._load(page_id)
         return page.get_record(slot_id)
 
     def remove(self, rid: RID) -> bool:
         # Borra el registro en rid (delegado en SlottedPage.delete_record)
         # y sincroniza la pagina/directorio si el borrado fue efectivo.
         page_id, slot_id=rid
-        if page_id<1 or page_id>self.page_cpunt:
+        if page_id<1 or page_id>self.page_count:
             return False
-        page=self.load(page_id)
+        page=self._load(page_id)
         ok=page.delete_record(slot_id)
         if ok:
             self._sync_page(page)
@@ -149,7 +149,7 @@ class HeapFile:
         # remove() sin un add() posterior que lo reclame.
         if page_id<1 or page_id>self.page_count:
             return
-        page=self.load(page_id)
+        page=self._load(page_id)
         page.defragment()
         self._sync_page(page)
 
